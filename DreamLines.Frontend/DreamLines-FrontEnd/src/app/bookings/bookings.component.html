@@ -1,0 +1,68 @@
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
+  <!--<a class="navbar-brand text-primary" routerLink="/DemoTask" routerLinkActive="active">back to sales Unit</a>-->
+  <button class="btn btn-primary" (click)="goToSalesUnits()">back to sales units</button>
+</nav>
+
+
+
+
+<h3>
+  List of bookings ( {{salesUnitName}} ):
+</h3>
+<h2 style="color:red">{{errorMessage}}</h2>
+<hr />
+<div *ngIf="bookingsResponse != undefined;" class="container body-content">
+  <ng-template #rt let-r="result" let-t="term">
+    <ngb-highlight [result]="r.id + ' ,'" [term]="t"></ngb-highlight>
+    <ngb-highlight [result]="r.shipName" [term]="t"></ngb-highlight>
+    <ngb-highlight [result]="', ' + r.currency + ' ' + (r.price | number:'2.1-1')" [term]="t"></ngb-highlight>
+  </ng-template>
+
+  <input id="typeahead-template" type="text" placeholder="{{'Search bookings of (' + salesUnitName + ') by ID or ship name'}}" class="form-control" [(ngModel)]="model" [ngbTypeahead]="search" [resultTemplate]="rt"
+         [inputFormatter]="formatter" />
+  <hr />
+
+
+  <label>Items per Page:</label>
+  <select class="form-control col-md-1" [(ngModel)]="itemsPerPage" (change)="getPage();">
+    <option *ngFor="let c of pageSizes" [attr.selected]="c==itemsPerPage" [ngValue]="c">{{c}}</option>
+  </select>
+  <hr />
+
+
+
+  <table class="table" [style.display]="!loading?'inline-table':'none'">
+    <thead>
+      <tr>
+        <th>
+          Booking Id
+        </th>
+        <th>
+          Ship Name
+        </th>
+        <th>
+          Price
+        </th>
+      </tr>
+    </thead>
+    <tbody *ngFor="let b of bookingsResponse.bookingList |  paginate: { id: 'pagerID', itemsPerPage: itemsPerPage, currentPage: pageIndex, totalItems: total }">
+      <tr>
+        <td>
+          {{ b.id }}
+        </td>
+        <td>
+          {{b.shipName}}
+        </td>
+        <td>
+          {{ b.currency + " " + (b.price | number:'2.2-3') }}
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+  <div style="text-align: center;">
+    <div class="fa fa-spinner fa-3x fa-spin" [style.display]="loading?'block':'none'"></div>
+    <pagination-controls (pageChange)="getPage($event)" id="pagerID"></pagination-controls>
+  </div>
+</div>
+
